@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:phonebook/helpers/contact_helper.dart';
@@ -41,7 +42,7 @@ class _ContactPageState extends State<ContactPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(child: Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.red,
         title: Text(_editedContact.name ?? "New Contact"),
@@ -109,6 +110,39 @@ class _ContactPageState extends State<ContactPage> {
           ]
         ),
       ),
-    );
+    ), 
+    onWillPop: _requestPop);
   }
+
+  Future<bool> _requestPop(){
+    if(_userEdited){
+      showDialog(context: context,
+        builder: (context){
+          return AlertDialog(
+            title: Text("Discard changes?"),
+            content: Text("If you leave, the changes will be lost."),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("Cancel"),
+                onPressed: (){
+                  Navigator.pop(context);
+                },
+              ),
+              FlatButton(
+                child: Text("Yes"),
+                onPressed: (){
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                },
+              )
+            ],
+          );
+        }
+      );
+      return Future.value(false);
+    } else {
+      return Future.value(true);
+    }
+  }
+  
 }
